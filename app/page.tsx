@@ -92,14 +92,10 @@ export default function HomePage() {
             <Button
               variant="outline"
               className="border-white/30 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm"
-              asChild
             >
               <Link href="/ai-chat">Try AI Assistant</Link>
             </Button>
-            <Button
-              className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg transform hover:scale-105 transition-all"
-              asChild
-            >
+            <Button className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg transform hover:scale-105 transition-all">
               <Link href="/dashboard">
                 <Sparkles className="h-4 w-4 mr-2" />
                 Start Free →
@@ -135,7 +131,6 @@ export default function HomePage() {
             <Button
               size="lg"
               className="text-xl px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl transform hover:scale-105 transition-all"
-              asChild
             >
               <Link href="/dashboard">
                 <Sparkles className="h-6 w-6 mr-3" />
@@ -145,7 +140,6 @@ export default function HomePage() {
             <Button
               size="lg"
               className="text-xl px-12 py-6 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 shadow-xl transform hover:scale-105 transition-all text-white"
-              asChild
             >
               <Link href="/ai-chat">
                 <Play className="h-6 w-6 mr-3" />
@@ -201,10 +195,7 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* AI Form Builder - CLICKABLE */}
-            <Card
-              className="border-0 bg-gradient-to-br from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300"
-              asChild
-            >
+            <Card className="border-0 bg-gradient-to-br from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
               <Link href="/dashboard">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full group-hover:from-blue-600 group-hover:to-purple-600 transition-all shadow-lg">
@@ -232,10 +223,7 @@ export default function HomePage() {
             </Card>
 
             {/* AI Assistant - CLICKABLE */}
-            <Card
-              className="border-0 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300"
-              asChild
-            >
+            <Card className="border-0 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
               <Link href="/ai-chat">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full group-hover:from-green-600 group-hover:to-emerald-600 transition-all shadow-lg">
@@ -263,10 +251,7 @@ export default function HomePage() {
             </Card>
 
             {/* Error Detection - CLICKABLE */}
-            <Card
-              className="border-0 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300"
-              asChild
-            >
+            <Card className="border-0 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
               <Link href="/dashboard">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full group-hover:from-purple-600 group-hover:to-pink-600 transition-all shadow-lg">
@@ -294,10 +279,7 @@ export default function HomePage() {
             </Card>
 
             {/* Auto-Fill - CLICKABLE */}
-            <Card
-              className="border-0 bg-gradient-to-br from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300"
-              asChild
-            >
+            <Card className="border-0 bg-gradient-to-br from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
               <Link href="/dashboard">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-full group-hover:from-orange-600 group-hover:to-red-600 transition-all shadow-lg">
@@ -325,10 +307,7 @@ export default function HomePage() {
             </Card>
 
             {/* Attorney Network - CLICKABLE */}
-            <Card
-              className="border-0 bg-gradient-to-br from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300"
-              asChild
-            >
+            <Card className="border-0 bg-gradient-to-br from-red-50 to-pink-50 hover:from-red-100 hover:to-pink-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
               <Link href="/attorneys">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full group-hover:from-red-600 group-hover:to-pink-600 transition-all shadow-lg">
@@ -356,10 +335,7 @@ export default function HomePage() {
             </Card>
 
             {/* Multilingual - CLICKABLE */}
-            <Card
-              className="border-0 bg-gradient-to-br from-teal-50 to-cyan-50 hover:from-teal-100 hover:to-cyan-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300"
-              asChild
-            >
+            <Card className="border-0 bg-gradient-to-br from-teal-50 to-cyan-50 hover:from-teal-100 hover:to-cyan-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
               <Link href="/dashboard">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full group-hover:from-teal-600 group-hover:to-cyan-600 transition-all shadow-lg">
@@ -508,10 +484,7 @@ export default function HomePage() {
                 <CardDescription>Perfect for exploring</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button
-                  className="w-full mb-4 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white"
-                  asChild
-                >
+                <Button className="w-full mb-4 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white">
                   <Link href="/dashboard">Start Free</Link>
                 </Button>
                 <ul className="text-left space-y-2 text-sm">
@@ -543,10 +516,7 @@ export default function HomePage() {
                 <CardDescription>Everything you need</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button
-                  className="w-full mb-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg"
-                  asChild
-                >
+                <Button className="w-full mb-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg">
                   <Link href="/checkout?plan=premium">
                     <Sparkles className="h-4 w-4 mr-2" />
                     Start Premium Trial
@@ -578,7 +548,6 @@ export default function HomePage() {
             <Button
               size="lg"
               className="text-xl px-12 py-6 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white shadow-xl transform hover:scale-105 transition-all"
-              asChild
             >
               <Link href="/pricing">
                 <Sparkles className="h-5 w-5 mr-2" />
@@ -601,7 +570,6 @@ export default function HomePage() {
             <Button
               size="lg"
               className="text-xl px-12 py-6 bg-white text-purple-600 hover:bg-gray-100 shadow-xl transform hover:scale-105 transition-all"
-              asChild
             >
               <Link href="/dashboard">
                 <Sparkles className="h-6 w-6 mr-3" />
@@ -611,7 +579,6 @@ export default function HomePage() {
             <Button
               size="lg"
               className="text-xl px-12 py-6 border-2 border-white text-white hover:bg-white hover:text-purple-600 bg-transparent shadow-xl transform hover:scale-105 transition-all"
-              asChild
             >
               <Link href="/ai-chat">
                 <MessageSquare className="h-6 w-6 mr-3" />
@@ -855,7 +822,7 @@ export default function HomePage() {
                 {/* Maximize Link */}
                 {!isAIMaximized && (
                   <div className="mt-2 text-center">
-                    <Button variant="link" size="sm" className="text-xs" asChild>
+                    <Button variant="link" size="sm" className="text-xs">
                       <Link href="/ai-chat">Open Full Chat →</Link>
                     </Button>
                   </div>
@@ -882,7 +849,6 @@ export default function HomePage() {
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                  asChild
                 >
                   <Link href="/dashboard">Start Free</Link>
                 </Button>
