@@ -89,12 +89,6 @@ export default function HomePage() {
             <Link href="/white-label" className="text-white/80 hover:text-white transition-colors font-medium">
               White Label
             </Link>
-            <Button
-              variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm"
-            >
-              <Link href="/ai-chat">Try AI Assistant</Link>
-            </Button>
             <Button className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg transform hover:scale-105 transition-all">
               <Link href="/dashboard">
                 <Sparkles className="h-4 w-4 mr-2" />
