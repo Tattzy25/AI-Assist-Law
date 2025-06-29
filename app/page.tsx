@@ -6,6 +6,7 @@ import { useChat } from "@ai-sdk/react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs"
 import {
   CheckCircle,
   Users,
@@ -23,6 +24,7 @@ import {
 import Link from "next/link"
 
 export default function HomePage() {
+  const { isSignedIn, user } = useUser()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [showAIWidget, setShowAIWidget] = useState(false)
   const [isAIMaximized, setIsAIMaximized] = useState(false)
@@ -68,6 +70,7 @@ export default function HomePage() {
 
     setSelectedFiles([])
   }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50">
       {/* Header */}
@@ -89,12 +92,38 @@ export default function HomePage() {
             <Link href="/white-label" className="text-white/80 hover:text-white transition-colors font-medium">
               White Label
             </Link>
-            <Button className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg transform hover:scale-105 transition-all">
-              <Link href="/dashboard">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Start Free →
-              </Link>
-            </Button>
+
+            {/* Authentication Section */}
+            <div className="flex items-center space-x-4">
+              {!isSignedIn ? (
+                <>
+                  <SignInButton mode="modal">
+                    <Button variant="ghost" className="text-white hover:bg-white/20">
+                      Sign In
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <Button className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg transform hover:scale-105 transition-all">
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Start Free →
+                    </Button>
+                  </SignUpButton>
+                </>
+              ) : (
+                <>
+                  <Button
+                    className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg transform hover:scale-105 transition-all"
+                    asChild
+                  >
+                    <Link href="/dashboard">
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <UserButton afterSignOutUrl="/" />
+                </>
+              )}
+            </div>
           </nav>
         </div>
       </header>
@@ -122,24 +151,51 @@ export default function HomePage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Button
-              size="lg"
-              className="text-xl px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl transform hover:scale-105 transition-all"
-            >
-              <Link href="/dashboard">
-                <Sparkles className="h-6 w-6 mr-3" />
-                Start My Application FREE →
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              className="text-xl px-12 py-6 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 shadow-xl transform hover:scale-105 transition-all text-white"
-            >
-              <Link href="/ai-chat">
-                <Play className="h-6 w-6 mr-3" />
-                Try AI Assistant
-              </Link>
-            </Button>
+            {!isSignedIn ? (
+              <>
+                <SignUpButton mode="modal">
+                  <Button
+                    size="lg"
+                    className="text-xl px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl transform hover:scale-105 transition-all"
+                  >
+                    <Sparkles className="h-6 w-6 mr-3" />
+                    Start My Application FREE →
+                  </Button>
+                </SignUpButton>
+                <Button
+                  size="lg"
+                  className="text-xl px-12 py-6 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 shadow-xl transform hover:scale-105 transition-all text-white"
+                >
+                  <Link href="/ai-chat">
+                    <Play className="h-6 w-6 mr-3" />
+                    Try AI Assistant
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="lg"
+                  className="text-xl px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl transform hover:scale-105 transition-all"
+                  asChild
+                >
+                  <Link href="/dashboard">
+                    <Sparkles className="h-6 w-6 mr-3" />
+                    Go to Dashboard →
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  className="text-xl px-12 py-6 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 shadow-xl transform hover:scale-105 transition-all text-white"
+                  asChild
+                >
+                  <Link href="/ai-chat">
+                    <Play className="h-6 w-6 mr-3" />
+                    AI Assistant
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Social Proof */}
@@ -190,7 +246,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* AI Form Builder - CLICKABLE */}
             <Card className="border-0 bg-gradient-to-br from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
-              <Link href="/dashboard">
+              <Link href={isSignedIn ? "/dashboard" : "/pricing"}>
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full group-hover:from-blue-600 group-hover:to-purple-600 transition-all shadow-lg">
                     <FileText className="h-12 w-12 text-white" />
@@ -246,7 +302,7 @@ export default function HomePage() {
 
             {/* Error Detection - CLICKABLE */}
             <Card className="border-0 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
-              <Link href="/dashboard">
+              <Link href={isSignedIn ? "/dashboard" : "/pricing"}>
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full group-hover:from-purple-600 group-hover:to-pink-600 transition-all shadow-lg">
                     <Shield className="h-12 w-12 text-white" />
@@ -274,7 +330,7 @@ export default function HomePage() {
 
             {/* Auto-Fill - CLICKABLE */}
             <Card className="border-0 bg-gradient-to-br from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
-              <Link href="/dashboard">
+              <Link href={isSignedIn ? "/dashboard" : "/pricing"}>
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-full group-hover:from-orange-600 group-hover:to-red-600 transition-all shadow-lg">
                     <Zap className="h-12 w-12 text-white" />
@@ -330,7 +386,7 @@ export default function HomePage() {
 
             {/* Multilingual - CLICKABLE */}
             <Card className="border-0 bg-gradient-to-br from-teal-50 to-cyan-50 hover:from-teal-100 hover:to-cyan-100 transition-all cursor-pointer group hover:shadow-2xl transform hover:scale-105 duration-300">
-              <Link href="/dashboard">
+              <Link href={isSignedIn ? "/dashboard" : "/pricing"}>
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 p-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full group-hover:from-teal-600 group-hover:to-cyan-600 transition-all shadow-lg">
                     <Globe className="h-12 w-12 text-white" />
@@ -478,9 +534,20 @@ export default function HomePage() {
                 <CardDescription>Perfect for exploring</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full mb-4 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white">
-                  <Link href="/dashboard">Start Free</Link>
-                </Button>
+                {!isSignedIn ? (
+                  <SignUpButton mode="modal">
+                    <Button className="w-full mb-4 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white">
+                      Start Free
+                    </Button>
+                  </SignUpButton>
+                ) : (
+                  <Button
+                    className="w-full mb-4 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white"
+                    asChild
+                  >
+                    <Link href="/dashboard">Go to Dashboard</Link>
+                  </Button>
+                )}
                 <ul className="text-left space-y-2 text-sm">
                   <li className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
@@ -510,7 +577,10 @@ export default function HomePage() {
                 <CardDescription>Everything you need</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full mb-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg">
+                <Button
+                  className="w-full mb-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg"
+                  asChild
+                >
                   <Link href="/checkout?plan=premium">
                     <Sparkles className="h-4 w-4 mr-2" />
                     Start Premium Trial
@@ -542,6 +612,7 @@ export default function HomePage() {
             <Button
               size="lg"
               className="text-xl px-12 py-6 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white shadow-xl transform hover:scale-105 transition-all"
+              asChild
             >
               <Link href="/pricing">
                 <Sparkles className="h-5 w-5 mr-2" />
@@ -561,24 +632,52 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
-            <Button
-              size="lg"
-              className="text-xl px-12 py-6 bg-white text-purple-600 hover:bg-gray-100 shadow-xl transform hover:scale-105 transition-all"
-            >
-              <Link href="/dashboard">
-                <Sparkles className="h-6 w-6 mr-3" />
-                Start My Application FREE →
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              className="text-xl px-12 py-6 border-2 border-white text-white hover:bg-white hover:text-purple-600 bg-transparent shadow-xl transform hover:scale-105 transition-all"
-            >
-              <Link href="/ai-chat">
-                <MessageSquare className="h-6 w-6 mr-3" />
-                Ask AI Assistant →
-              </Link>
-            </Button>
+            {!isSignedIn ? (
+              <>
+                <SignUpButton mode="modal">
+                  <Button
+                    size="lg"
+                    className="text-xl px-12 py-6 bg-white text-purple-600 hover:bg-gray-100 shadow-xl transform hover:scale-105 transition-all"
+                  >
+                    <Sparkles className="h-6 w-6 mr-3" />
+                    Start My Application FREE →
+                  </Button>
+                </SignUpButton>
+                <Button
+                  size="lg"
+                  className="text-xl px-12 py-6 border-2 border-white text-white hover:bg-white hover:text-purple-600 bg-transparent shadow-xl transform hover:scale-105 transition-all"
+                  asChild
+                >
+                  <Link href="/ai-chat">
+                    <MessageSquare className="h-6 w-6 mr-3" />
+                    Ask AI Assistant →
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="lg"
+                  className="text-xl px-12 py-6 bg-white text-purple-600 hover:bg-gray-100 shadow-xl transform hover:scale-105 transition-all"
+                  asChild
+                >
+                  <Link href="/dashboard">
+                    <Sparkles className="h-6 w-6 mr-3" />
+                    Go to Dashboard →
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  className="text-xl px-12 py-6 border-2 border-white text-white hover:bg-white hover:text-purple-600 bg-transparent shadow-xl transform hover:scale-105 transition-all"
+                  asChild
+                >
+                  <Link href="/ai-chat">
+                    <MessageSquare className="h-6 w-6 mr-3" />
+                    Ask AI Assistant →
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-blue-100">
@@ -816,7 +915,7 @@ export default function HomePage() {
                 {/* Maximize Link */}
                 {!isAIMaximized && (
                   <div className="mt-2 text-center">
-                    <Button variant="link" size="sm" className="text-xs">
+                    <Button variant="link" size="sm" className="text-xs" asChild>
                       <Link href="/ai-chat">Open Full Chat →</Link>
                     </Button>
                   </div>
@@ -840,12 +939,24 @@ export default function HomePage() {
               </div>
               <p className="text-gray-300 mb-4">Making immigration accessible through AI technology.</p>
               <div className="flex space-x-4">
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                >
-                  <Link href="/dashboard">Start Free</Link>
-                </Button>
+                {!isSignedIn ? (
+                  <SignUpButton mode="modal">
+                    <Button
+                      size="sm"
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                    >
+                      Start Free
+                    </Button>
+                  </SignUpButton>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                    asChild
+                  >
+                    <Link href="/dashboard">Dashboard</Link>
+                  </Button>
+                )}
               </div>
             </div>
             <div>

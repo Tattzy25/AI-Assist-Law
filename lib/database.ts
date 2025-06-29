@@ -2,27 +2,63 @@ import { neon } from "@neondatabase/serverless"
 
 const sql = neon(process.env.NEON_NEON_DATABASE_URL!)
 
+// Interfaces
+export interface User {
+  id: string
+  auth_provider_id: string
+  email: string
+  plan: string
+  created_at: Date
+  last_login: Date | null
+}
+
+export interface UserUsage {
+  user_id: string
+  messages_to_ai: number
+  forms_auto_filled: number
+  pdfs_generated: number
+  uploads_count: number
+  last_activity: Date | null
+}
+
+export interface PlanLimits {
+  plan: string
+  messages_limit: number
+  forms_limit: number
+  pdfs_limit: number
+  uploads_limit: number
+}
+
+export interface DashboardStats extends UserUsage, PlanLimits {}
+
 // User Management Functions
-export async function createUser(authProviderId: string, email: string, plan = "free") {
+export async function createUser(authProviderId: string, email: string, plan = "free"): Promise<User> {
   try {
     const result = await sql`
-      INSERT INTO users (auth_provider_id, email, plan)
-      VALUES (${authProviderId}, ${email}, ${plan})
+      INSERT INTO users (auth_provider_id, email, plan, created_at)
+      VALUES (${authProviderId}, ${email}, ${plan}, NOW())
       RETURNING *
     `
-    return result[0]
+
+    // Also create initial usage record
+    await sql`
+      INSERT INTO user_usage (user_id, messages_to_ai, forms_auto_filled, pdfs_generated, uploads_count, last_activity)
+      VALUES (${result[0].id}, 0, 0, 0, 0, NOW())
+    `
+
+    return result[0] as User
   } catch (error) {
     console.error("Error creating user:", error)
     throw error
   }
 }
 
-export async function getUserByAuthId(authProviderId: string) {
+export async function getUserByAuthId(authProviderId: string): Promise<User | null> {
   try {
     const result = await sql`
-      SELECT * FROM users WHERE auth_provider_id = ${authProviderId}
+      SELECT * FROM users WHERE auth_provider_id = ${authProviderId} LIMIT 1
     `
-    return result[0] || null
+    return (result[0] as User) || null
   } catch (error) {
     console.error("Error getting user by auth ID:", error)
     throw error
@@ -41,10 +77,10 @@ export async function getUserById(userId: string) {
   }
 }
 
-export async function updateUserLastLogin(userId: string) {
+export async function updateUserLastLogin(userId: string): Promise<void> {
   try {
     await sql`
-      UPDATE users SET last_login = now() WHERE id = ${userId}
+      UPDATE users SET last_login = NOW() WHERE id = ${userId}
     `
   } catch (error) {
     console.error("Error updating last login:", error)
@@ -52,15 +88,42 @@ export async function updateUserLastLogin(userId: string) {
   }
 }
 
-export async function updateUserPlan(userId: string, plan: string) {
+export async function getUserPlan(userId: string): Promise<string> {
   try {
     const result = await sql`
-      UPDATE users SET plan = ${plan} WHERE id = ${userId}
-      RETURNING *
+      SELECT plan FROM users WHERE id = ${userId} LIMIT 1
     `
-    return result[0]
+    return result[0]?.plan || "free"
+  } catch (error) {
+    console.error("Error getting user plan:", error)
+    throw error
+  }
+}
+
+export async function updateUserPlan(userId: string, plan: string): Promise<void> {
+  try {
+    await sql`
+      UPDATE users SET plan = ${plan} WHERE id = ${userId}
+    `
   } catch (error) {
     console.error("Error updating user plan:", error)
+    throw error
+  }
+}
+
+export async function updateUserUsage(
+  userId: string,
+  field: "messages_to_ai" | "forms_auto_filled" | "pdfs_generated" | "uploads_count",
+  increment = 1,
+): Promise<void> {
+  try {
+    await sql`
+      UPDATE user_usage 
+      SET ${sql(field)} = ${sql(field)} + ${increment}, last_activity = NOW()
+      WHERE user_id = ${userId}
+    `
+  } catch (error) {
+    console.error("Error updating user usage:", error)
     throw error
   }
 }
@@ -356,12 +419,26 @@ export async function incrementFirmUsageGets(firmId: string, count = 1) {
 }
 
 // Analytics and Admin Functions
-export async function getDashboardStats(userId: string) {
+export async function getDashboardStats(userId: string): Promise<DashboardStats | null> {
   try {
     const result = await sql`
-      SELECT * FROM user_dashboard_stats WHERE user_id = ${userId}
+      SELECT 
+        u.messages_to_ai,
+        u.forms_auto_filled,
+        u.pdfs_generated,
+        u.uploads_count,
+        u.last_activity,
+        p.messages_limit,
+        p.forms_limit,
+        p.pdfs_limit,
+        p.uploads_limit
+      FROM user_usage u
+      JOIN users usr ON u.user_id = usr.id
+      JOIN plan_limits p ON usr.plan = p.plan
+      WHERE u.user_id = ${userId}
+      LIMIT 1
     `
-    return result[0] || null
+    return (result[0] as DashboardStats) || null
   } catch (error) {
     console.error("Error getting dashboard stats:", error)
     throw error
@@ -456,7 +533,7 @@ export async function resetMonthlyUsage() {
 export async function healthCheck() {
   try {
     const result = await sql`
-      SELECT 'Database connection healthy' as status, now() as timestamp
+      SELECT 'Database connection healthy' as status, NOW() as timestamp
     `
     return result[0]
   } catch (error) {
