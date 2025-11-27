@@ -200,7 +200,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">What's included:</h4>
+                  <h4 className="font-semibold">What&apos;s included:</h4>
                   {plan.features.map((feature, index) => (
                     <div key={index} className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
