@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -85,6 +85,7 @@ export default function CheckoutPage() {
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [paypalError, setPaypalError] = useState<string | null>(null)
+  const scriptRef = useRef<HTMLScriptElement | null>(null)
 
   useEffect(() => {
     // PayPal SDK integration
@@ -103,10 +104,11 @@ export default function CheckoutPage() {
       setPaypalError("Failed to load payment system. Please try again later.")
     }
     document.body.appendChild(script)
+    scriptRef.current = script
 
     return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script)
+      if (scriptRef.current && document.body.contains(scriptRef.current)) {
+        document.body.removeChild(scriptRef.current)
       }
     }
   }, [])
@@ -129,7 +131,9 @@ export default function CheckoutPage() {
     // PayPal subscription creation
     // In production, this will use the PayPal SDK to create and process subscriptions
     // The PayPal buttons should render once the SDK is loaded
-    if (typeof window !== "undefined" && (window as Record<string, unknown>).paypal) {
+    // Check if PayPal SDK is loaded on the window object
+    const windowWithPaypal = window as typeof window & { paypal?: unknown }
+    if (typeof window !== "undefined" && windowWithPaypal.paypal) {
       // PayPal SDK is loaded, subscription will be handled by PayPal buttons
       setIsProcessing(false)
     } else {

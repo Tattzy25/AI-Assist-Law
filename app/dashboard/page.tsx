@@ -104,7 +104,7 @@ export default async function DashboardPage() {
       description: formDescriptions[form.form_type] || form.form_type,
       progress: form.status === "completed" ? 100 : progress,
       status,
-      lastUpdated: formatRelativeTime(new Date(form.updated_at || form.created_at)),
+      lastUpdated: formatRelativeTime(new Date(form.updated_at || form.created_at || Date.now())),
     }
   })
 

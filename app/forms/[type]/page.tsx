@@ -39,10 +39,24 @@ interface FormField {
   aiHint?: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// Form type descriptions for dynamic title
+const formTitles: Record<string, string> = {
+  "I-485": "Application for Adjustment of Status",
+  "I-130": "Petition for Alien Relative",
+  "I-140": "Immigrant Petition for Alien Workers",
+  "N-400": "Application for Naturalization",
+  "I-765": "Application for Employment Authorization",
+  "I-131": "Application for Travel Document",
+  "I-589": "Application for Asylum",
+  "I-821D": "DACA Consideration Request",
+}
+
 export default function FormBuilder({ params }: { params: { type: string } }) {
-  // Note: params.type can be used to load different form configurations
-  // Currently showing I-485 form structure as the default
+  // Normalize form type with proper fallback
+  const rawType = params.type || ""
+  const formType = rawType.trim().toUpperCase() || "I-485"
+  const formTitle = formTitles[formType] || "Immigration Form"
+  
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<Record<string, string | boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -157,16 +171,11 @@ export default function FormBuilder({ params }: { params: { type: string } }) {
 
   const handleAIAutoFill = async () => {
     // AI Auto-Fill feature: This will analyze uploaded documents and suggest field values
-    // In production, this calls the AI API to extract information from uploaded documents
-    // For now, show a message that documents need to be uploaded first
-    const hasUploadedDocs = false // TODO: Check if user has uploaded documents in /documents
-    
-    if (!hasUploadedDocs) {
-      setAiSuggestions({
-        _notice: "Please upload your documents first in the Documents section to enable AI auto-fill."
-      })
-    }
-    // When documents are available, the AI will analyze them and provide suggestions
+    // In production, this integrates with the AI API to extract information from uploaded documents
+    // Show a message prompting users to upload documents first
+    setAiSuggestions({
+      _notice: "Please upload your documents first in the Documents section to enable AI auto-fill. The AI will analyze your documents and suggest values for form fields."
+    })
   }
 
   const renderField = (field: FormField) => {
@@ -286,7 +295,7 @@ export default function FormBuilder({ params }: { params: { type: string } }) {
               </Link>
             </Button>
             <div>
-              <h1 className="text-xl font-semibold">Form I-485: Application for Adjustment of Status</h1>
+              <h1 className="text-xl font-semibold">Form {formType}: {formTitle}</h1>
               <p className="text-sm text-gray-600">
                 Step {currentStep + 1} of {formSteps.length}
               </p>
