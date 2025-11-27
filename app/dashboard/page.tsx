@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import { getDashboardStats, getUserByAuthId } from "@/lib/database"
+import { getDashboardStats, getUserByAuthId, getUserForms } from "@/lib/database"
 import {
   FileText,
   MessageSquare,
@@ -14,49 +14,61 @@ import {
   Clock,
   AlertCircle,
   Zap,
-  Users,
   BookOpen,
   ArrowRight,
-  Star,
   TrendingUp,
   Lock,
   Crown,
 } from "lucide-react"
 import Link from "next/link"
 
-const recentForms = [
-  {
-    id: "1",
-    name: "Form I-485",
-    description: "Application for Adjustment of Status",
-    progress: 75,
-    status: "In Progress",
-    lastUpdated: "2 hours ago",
-  },
-  {
-    id: "2",
-    name: "Form I-130",
-    description: "Petition for Alien Relative",
-    progress: 100,
-    status: "Completed",
-    lastUpdated: "1 day ago",
-  },
-  {
-    id: "3",
-    name: "Form N-400",
-    description: "Application for Naturalization",
-    progress: 25,
-    status: "Started",
-    lastUpdated: "3 days ago",
-  },
+// Form type descriptions for common immigration forms
+const formDescriptions: Record<string, string> = {
+  "I-485": "Application for Adjustment of Status",
+  "I-130": "Petition for Alien Relative",
+  "I-140": "Immigrant Petition for Alien Workers",
+  "N-400": "Application for Naturalization",
+  "I-765": "Application for Employment Authorization",
+  "I-131": "Application for Travel Document",
+  "I-589": "Application for Asylum",
+  "I-821D": "DACA Consideration Request",
+}
+
+// Helper function to format relative time
+function formatRelativeTime(date: Date): string {
+  const now = new Date()
+  const diffInMs = now.getTime() - date.getTime()
+  const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+  if (diffInMinutes < 60) {
+    return diffInMinutes <= 1 ? "just now" : `${diffInMinutes} minutes ago`
+  } else if (diffInHours < 24) {
+    return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`
+  } else if (diffInDays < 7) {
+    return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`
+  } else {
+    return date.toLocaleDateString()
+  }
+}
+
+// Static form information for popular forms section
+const popularFormsInfo = [
+  { name: "I-485 (Green Card)", formType: "I-485" },
+  { name: "N-400 (Citizenship)", formType: "N-400" },
+  { name: "I-130 (Family Petition)", formType: "I-130" },
+  { name: "I-765 (Work Authorization)", formType: "I-765" },
 ]
 
-const popularForms = [
-  { name: "I-485 (Green Card)", users: "15.2k", rating: 4.8 },
-  { name: "N-400 (Citizenship)", users: "12.1k", rating: 4.9 },
-  { name: "I-130 (Family Petition)", users: "9.8k", rating: 4.7 },
-  { name: "I-765 (Work Authorization)", users: "8.9k", rating: 4.6 },
-]
+interface FormRecord {
+  id: string
+  form_type: string
+  form_data: Record<string, unknown>
+  status: string
+  created_at: string
+  updated_at: string
+}
 
 export default async function DashboardPage() {
   const user = await currentUser()
@@ -68,6 +80,33 @@ export default async function DashboardPage() {
   // Get user data from our database
   const dbUser = await getUserByAuthId(user.id)
   const userStats = dbUser ? await getDashboardStats(dbUser.id) : null
+  
+  // Fetch user's actual forms from the database
+  const userForms = dbUser ? await getUserForms(dbUser.id) : []
+  
+  // Transform database forms to display format
+  const recentForms = (userForms as FormRecord[]).slice(0, 5).map((form) => {
+    const formData = form.form_data || {}
+    const totalFields = Object.keys(formData).length
+    const filledFields = Object.values(formData).filter((v) => v !== null && v !== "").length
+    const progress = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0
+    
+    let status = "Started"
+    if (form.status === "completed") {
+      status = "Completed"
+    } else if (progress > 0 && progress < 100) {
+      status = "In Progress"
+    }
+    
+    return {
+      id: form.id,
+      name: `Form ${form.form_type}`,
+      description: formDescriptions[form.form_type] || form.form_type,
+      progress: form.status === "completed" ? 100 : progress,
+      status,
+      lastUpdated: formatRelativeTime(new Date(form.updated_at || form.created_at || Date.now())),
+    }
+  })
 
   const userPlan = dbUser?.plan || "free"
   const isPremium = userPlan === "premium" || userPlan.includes("white_label")
@@ -379,26 +418,21 @@ export default async function DashboardPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <TrendingUp className="h-5 w-5 mr-2" />
-                  Popular Forms
+                  Common Forms
                 </CardTitle>
-                <CardDescription>Most commonly used immigration forms</CardDescription>
+                <CardDescription>Commonly used immigration forms</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {popularForms.map((form) => (
-                    <div key={form.name} className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-2">{form.name}</h4>
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-1" />
-                          {form.users} users
-                        </div>
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                          {form.rating}
-                        </div>
+                  {popularFormsInfo.map((form) => (
+                    <Link key={form.name} href={`/forms/${form.formType}`} className="block">
+                      <div className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                        <h4 className="font-semibold mb-2">{form.name}</h4>
+                        <p className="text-sm text-gray-600">
+                          {formDescriptions[form.formType] || "Immigration form"}
+                        </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </CardContent>

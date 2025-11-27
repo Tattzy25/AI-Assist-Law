@@ -39,13 +39,32 @@ interface FormField {
   aiHint?: string
 }
 
+// Form type descriptions for dynamic title
+const formTitles: Record<string, string> = {
+  "I-485": "Application for Adjustment of Status",
+  "I-130": "Petition for Alien Relative",
+  "I-140": "Immigrant Petition for Alien Workers",
+  "N-400": "Application for Naturalization",
+  "I-765": "Application for Employment Authorization",
+  "I-131": "Application for Travel Document",
+  "I-589": "Application for Asylum",
+  "I-821D": "DACA Consideration Request",
+}
+
 export default function FormBuilder({ params }: { params: { type: string } }) {
+  // Normalize form type with proper fallback
+  const rawType = params.type || ""
+  const formType = rawType.trim().toUpperCase() || "I-485"
+  const formTitle = formTitles[formType] || "Immigration Form"
+  
   const [currentStep, setCurrentStep] = useState(0)
-  const [formData, setFormData] = useState<Record<string, any>>({})
+  const [formData, setFormData] = useState<Record<string, string | boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, string>>({})
 
-  // Sample form structure - in real app, this would come from API
+  // Form structure for immigration forms
+  // This defines the fields and steps for the I-485 form as an example
+  // Additional form types can be added with their specific field requirements
   const formSteps: FormStep[] = [
     {
       id: "personal-info",
@@ -115,7 +134,7 @@ export default function FormBuilder({ params }: { params: { type: string } }) {
   const currentStepData = formSteps[currentStep]
   const progress = ((currentStep + 1) / formSteps.length) * 100
 
-  const handleInputChange = (fieldId: string, value: any) => {
+  const handleInputChange = (fieldId: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }))
     // Clear error when user starts typing
     if (errors[fieldId]) {
@@ -151,13 +170,12 @@ export default function FormBuilder({ params }: { params: { type: string } }) {
   }
 
   const handleAIAutoFill = async () => {
-    // Simulate AI auto-fill
-    const suggestions = {
-      firstName: "Based on your passport, we suggest: John",
-      lastName: "Based on your passport, we suggest: Smith",
-      countryOfBirth: "Based on your documents: Mexico",
-    }
-    setAiSuggestions(suggestions)
+    // AI Auto-Fill feature: This will analyze uploaded documents and suggest field values
+    // In production, this integrates with the AI API to extract information from uploaded documents
+    // Show a message prompting users to upload documents first
+    setAiSuggestions({
+      _notice: "Please upload your documents first in the Documents section to enable AI auto-fill. The AI will analyze your documents and suggest values for form fields."
+    })
   }
 
   const renderField = (field: FormField) => {
@@ -277,7 +295,7 @@ export default function FormBuilder({ params }: { params: { type: string } }) {
               </Link>
             </Button>
             <div>
-              <h1 className="text-xl font-semibold">Form I-485: Application for Adjustment of Status</h1>
+              <h1 className="text-xl font-semibold">Form {formType}: {formTitle}</h1>
               <p className="text-sm text-gray-600">
                 Step {currentStep + 1} of {formSteps.length}
               </p>

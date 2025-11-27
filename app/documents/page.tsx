@@ -21,26 +21,8 @@ interface UploadedFile {
 }
 
 export default function DocumentsPage() {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([
-    {
-      id: "1",
-      name: "passport-main-page.jpg",
-      type: "image/jpeg",
-      size: "2.4 MB",
-      status: "completed",
-      progress: 100,
-      category: "Identity Documents",
-    },
-    {
-      id: "2",
-      name: "birth-certificate.pdf",
-      type: "application/pdf",
-      size: "1.2 MB",
-      status: "completed",
-      progress: 100,
-      category: "Identity Documents",
-    },
-  ])
+  // Initialize with empty array - no mock documents
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
 
   const [dragActive, setDragActive] = useState(false)
 

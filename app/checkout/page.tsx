@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -84,16 +84,32 @@ export default function CheckoutPage() {
   })
 
   const [isProcessing, setIsProcessing] = useState(false)
+  const [paypalError, setPaypalError] = useState<string | null>(null)
+  const scriptRef = useRef<HTMLScriptElement | null>(null)
 
   useEffect(() => {
-    // Load PayPal SDK
+    // PayPal SDK integration
+    // The PAYPAL_CLIENT_ID should be set in environment variables for production
+    const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+    
+    if (!paypalClientId) {
+      setPaypalError("Payment system is being configured. Please contact support or try again later.")
+      return
+    }
+    
     const script = document.createElement("script")
-    script.src = "https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&vault=true&intent=subscription"
+    script.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&vault=true&intent=subscription`
     script.async = true
+    script.onerror = () => {
+      setPaypalError("Failed to load payment system. Please try again later.")
+    }
     document.body.appendChild(script)
+    scriptRef.current = script
 
     return () => {
-      document.body.removeChild(script)
+      if (scriptRef.current && document.body.contains(scriptRef.current)) {
+        document.body.removeChild(scriptRef.current)
+      }
     }
   }, [])
 
@@ -105,14 +121,25 @@ export default function CheckoutPage() {
   }
 
   const handlePayPalPayment = () => {
+    if (paypalError) {
+      alert(paypalError)
+      return
+    }
+    
     setIsProcessing(true)
 
-    // PayPal integration would go here
-    // For now, we'll simulate the process
-    setTimeout(() => {
-      alert("Payment processed successfully! Welcome to " + plan.name)
+    // PayPal subscription creation
+    // In production, this will use the PayPal SDK to create and process subscriptions
+    // The PayPal buttons should render once the SDK is loaded
+    // Check if PayPal SDK is loaded on the window object
+    const windowWithPaypal = window as typeof window & { paypal?: unknown }
+    if (typeof window !== "undefined" && windowWithPaypal.paypal) {
+      // PayPal SDK is loaded, subscription will be handled by PayPal buttons
       setIsProcessing(false)
-    }, 2000)
+    } else {
+      setIsProcessing(false)
+      alert("Payment system is initializing. Please wait a moment and try again.")
+    }
   }
 
   if (!plan) {
@@ -173,7 +200,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="font-semibold">What's included:</h4>
+                  <h4 className="font-semibold">What&apos;s included:</h4>
                   {plan.features.map((feature, index) => (
                     <div key={index} className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
@@ -299,14 +326,24 @@ export default function CheckoutPage() {
 
                   {/* PayPal Payment Button */}
                   <div className="mt-6">
+                    {paypalError ? (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
+                        <p className="text-yellow-800 text-sm">{paypalError}</p>
+                        <p className="text-yellow-700 text-xs mt-2">
+                          Please contact us at support@papertrailassassin.com for assistance.
+                        </p>
+                      </div>
+                    ) : null}
                     <Button
                       type="button"
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
                       onClick={handlePayPalPayment}
-                      disabled={isProcessing}
+                      disabled={isProcessing || !!paypalError}
                     >
                       {isProcessing ? (
                         "Processing..."
+                      ) : paypalError ? (
+                        "Payment Unavailable"
                       ) : (
                         <>
                           Pay with PayPal - {plan.price}
