@@ -39,13 +39,18 @@ interface FormField {
   aiHint?: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function FormBuilder({ params }: { params: { type: string } }) {
+  // Note: params.type can be used to load different form configurations
+  // Currently showing I-485 form structure as the default
   const [currentStep, setCurrentStep] = useState(0)
-  const [formData, setFormData] = useState<Record<string, any>>({})
+  const [formData, setFormData] = useState<Record<string, string | boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, string>>({})
 
-  // Sample form structure - in real app, this would come from API
+  // Form structure for immigration forms
+  // This defines the fields and steps for the I-485 form as an example
+  // Additional form types can be added with their specific field requirements
   const formSteps: FormStep[] = [
     {
       id: "personal-info",
@@ -115,7 +120,7 @@ export default function FormBuilder({ params }: { params: { type: string } }) {
   const currentStepData = formSteps[currentStep]
   const progress = ((currentStep + 1) / formSteps.length) * 100
 
-  const handleInputChange = (fieldId: string, value: any) => {
+  const handleInputChange = (fieldId: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }))
     // Clear error when user starts typing
     if (errors[fieldId]) {
@@ -151,13 +156,17 @@ export default function FormBuilder({ params }: { params: { type: string } }) {
   }
 
   const handleAIAutoFill = async () => {
-    // Simulate AI auto-fill
-    const suggestions = {
-      firstName: "Based on your passport, we suggest: John",
-      lastName: "Based on your passport, we suggest: Smith",
-      countryOfBirth: "Based on your documents: Mexico",
+    // AI Auto-Fill feature: This will analyze uploaded documents and suggest field values
+    // In production, this calls the AI API to extract information from uploaded documents
+    // For now, show a message that documents need to be uploaded first
+    const hasUploadedDocs = false // TODO: Check if user has uploaded documents in /documents
+    
+    if (!hasUploadedDocs) {
+      setAiSuggestions({
+        _notice: "Please upload your documents first in the Documents section to enable AI auto-fill."
+      })
     }
-    setAiSuggestions(suggestions)
+    // When documents are available, the AI will analyze them and provide suggestions
   }
 
   const renderField = (field: FormField) => {

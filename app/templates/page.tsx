@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Download, Search, Filter, ArrowLeft, Star, Eye, Clock } from "lucide-react"
+import { FileText, Download, Search, Filter, ArrowLeft, Eye, Clock } from "lucide-react"
 import Link from "next/link"
 
 interface Template {
@@ -13,73 +13,66 @@ interface Template {
   title: string
   description: string
   category: string
-  downloads: number
-  rating: number
   lastUpdated: string
   isPremium: boolean
-  previewUrl?: string
+  uscisUrl?: string
 }
 
+// Official USCIS form templates with links to official sources
 const templates: Template[] = [
   {
     id: "i485-template",
-    title: "Form I-485 Template",
-    description: "Application to Adjust Status to Permanent Resident",
+    title: "Form I-485",
+    description: "Application to Register Permanent Residence or Adjust Status",
     category: "Green Card",
-    downloads: 15420,
-    rating: 4.8,
     lastUpdated: "2024-01-15",
     isPremium: false,
+    uscisUrl: "https://www.uscis.gov/i-485",
   },
   {
     id: "n400-template",
-    title: "Form N-400 Template",
-    description: "Application for Naturalization (Citizenship)",
+    title: "Form N-400",
+    description: "Application for Naturalization",
     category: "Citizenship",
-    downloads: 12350,
-    rating: 4.9,
     lastUpdated: "2024-01-10",
     isPremium: false,
+    uscisUrl: "https://www.uscis.gov/n-400",
   },
   {
     id: "i130-template",
-    title: "Form I-130 Template",
+    title: "Form I-130",
     description: "Petition for Alien Relative",
     category: "Family",
-    downloads: 9870,
-    rating: 4.7,
     lastUpdated: "2024-01-12",
     isPremium: false,
+    uscisUrl: "https://www.uscis.gov/i-130",
   },
   {
     id: "i765-template",
-    title: "Form I-765 Template",
+    title: "Form I-765",
     description: "Application for Employment Authorization",
     category: "Work Authorization",
-    downloads: 8920,
-    rating: 4.6,
     lastUpdated: "2024-01-08",
     isPremium: false,
+    uscisUrl: "https://www.uscis.gov/i-765",
   },
   {
     id: "i589-template",
-    title: "Form I-589 Template",
+    title: "Form I-589",
     description: "Application for Asylum and for Withholding of Removal",
     category: "Asylum",
-    downloads: 5430,
-    rating: 4.8,
     lastUpdated: "2024-01-14",
     isPremium: true,
+    uscisUrl: "https://www.uscis.gov/i-589",
   },
   {
     id: "i821d-template",
-    title: "Form I-821D Template",
+    title: "Form I-821D",
     description: "Consideration of Deferred Action for Childhood Arrivals",
     category: "DACA",
-    downloads: 7650,
-    rating: 4.9,
     lastUpdated: "2024-01-11",
     isPremium: true,
+    uscisUrl: "https://www.uscis.gov/i-821d",
   },
 ]
 
@@ -197,14 +190,6 @@ export default function TemplatesPage() {
 
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <Badge variant="outline">{template.category}</Badge>
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                    {template.rating}
-                  </div>
-                  <div className="flex items-center">
-                    <Download className="h-4 w-4 mr-1" />
-                    {template.downloads.toLocaleString()}
-                  </div>
                 </div>
               </CardHeader>
 
@@ -217,15 +202,17 @@ export default function TemplatesPage() {
                 </div>
 
                 <div className="flex space-x-2">
-                  {template.previewUrl && (
-                    <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
+                  {template.uscisUrl && (
+                    <Button variant="outline" size="sm" className="flex-1 bg-transparent" asChild>
+                      <a href={template.uscisUrl} target="_blank" rel="noopener noreferrer">
+                        <Eye className="h-4 w-4 mr-2" />
+                        View on USCIS
+                      </a>
                     </Button>
                   )}
                   <Button size="sm" className="flex-1" onClick={() => handleDownload(template.id, template.isPremium)}>
                     <Download className="h-4 w-4 mr-2" />
-                    {template.isPremium ? "Get Premium" : "Download"}
+                    {template.isPremium ? "Get Premium" : "Start Form"}
                   </Button>
                 </div>
               </CardContent>
